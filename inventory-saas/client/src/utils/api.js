@@ -4,8 +4,12 @@ import axios from 'axios';
  * Axios instance configured for API calls
  * withCredentials: true allows sending cookies with requests
  */
+const baseURL = import.meta.env.VITE_API_BASE_URL 
+  ? `${import.meta.env.VITE_API_BASE_URL}/api`
+  : '/api';
+
 const api = axios.create({
-  baseURL: '/api', // Proxy handles this in dev, direct in production
+  baseURL,
   withCredentials: true, // Important: Send cookies with every request
   headers: {
     'Content-Type': 'application/json',
