@@ -4,14 +4,14 @@
 
 ### 1. `.env.local` (Client Environment)
 ```
-VITE_API_BASE_URL=https://inventory-saas-qcdb.onrender.com
+VITE_API_URL=https://inventory-saas-qcdb.onrender.com
 ```
 - Used for development locally
 - Automatically loaded by Vite
 
 ### 2. `.env.example`
 ```
-VITE_API_BASE_URL=https://inventory-saas-qcdb.onrender.com
+VITE_API_URL=https://inventory-saas-qcdb.onrender.com
 ```
 - Reference file for team members
 - Contains example env variables
@@ -50,7 +50,7 @@ git push origin main
 ### Step 3: Environment Variables Add Karo:
 Vercel Dashboard mein `Settings` → `Environment Variables` mein:
 ```
-VITE_API_BASE_URL = https://inventory-saas-qcdb.onrender.com
+VITE_API_URL = https://inventory-saas-qcdb.onrender.com
 ```
 
 ### Step 4: Deploy Karo
@@ -72,5 +72,5 @@ Deploy karo Vercel par, sab smooth chalega!
 ## Important Notes:
 - `.env.local` file locally load hoga (production mein ignore hoga)
 - `.gitignore` mein `.env.local` add hai, so sensitive data safe rahega
-- Vercel par Environment Variables se VITE_API_BASE_URL set karna padega
+- Vercel par Environment Variables se VITE_API_URL set karna padega
 - Backend URL: https://inventory-saas-qcdb.onrender.com use ho raha hai
