@@ -22,7 +22,13 @@ export const AuthProvider = ({ children }) => {
 
   // Check if user is logged in on mount
   useEffect(() => {
-    checkAuth();
+    // Only check auth if we have an indication user might be logged in
+    const hasAuthIndication = localStorage.getItem('authChecked') === 'true';
+    if (hasAuthIndication) {
+      checkAuth();
+    } else {
+      setLoading(false);
+    }
   }, []);
 
   /**
@@ -33,10 +39,19 @@ export const AuthProvider = ({ children }) => {
       const response = await api.get('/auth/me');
       if (response.data.success) {
         setUser(response.data.user);
+        localStorage.setItem('authChecked', 'true');
       }
     } catch (error) {
-      console.error('Auth check failed:', error);
-      setUser(null);
+      // 401 is expected when not authenticated - don't treat as error
+      if (error.response?.status === 401) {
+        setUser(null);
+        localStorage.removeItem('authChecked');
+      } else {
+        // Only log actual errors (not authentication failures)
+        console.error('Auth check failed:', error);
+        setUser(null);
+        localStorage.removeItem('authChecked');
+      }
     } finally {
       setLoading(false);
     }
@@ -49,9 +64,10 @@ export const AuthProvider = ({ children }) => {
     try {
       setError(null);
       const response = await api.post('/auth/login', { email, password });
-      
+
       if (response.data.success) {
         setUser(response.data.user);
+        localStorage.setItem('authChecked', 'true'); // Mark as potentially authenticated
         return { success: true };
       }
     } catch (error) {
@@ -73,9 +89,10 @@ export const AuthProvider = ({ children }) => {
         password,
         role,
       });
-      
+
       if (response.data.success) {
         setUser(response.data.user);
+        localStorage.setItem('authChecked', 'true'); // Mark as potentially authenticated
         return { success: true };
       }
     } catch (error) {
@@ -92,6 +109,7 @@ export const AuthProvider = ({ children }) => {
     try {
       await api.post('/auth/logout');
       setUser(null);
+      localStorage.removeItem('authChecked'); // Clear auth indication
     } catch (error) {
       console.error('Logout error:', error);
     }

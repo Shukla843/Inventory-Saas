@@ -50,8 +50,8 @@ export const signup = async (req, res) => {
     // Set cookie with token
     res.cookie('token', token, {
       httpOnly: true, // Prevents client-side JS from accessing cookie
-      secure: process.env.NODE_ENV === 'production', // HTTPS only in production
-      sameSite: 'strict', // CSRF protection
+      secure: 'true', // HTTPS only in production
+      sameSite: 'none', // CSRF protection
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
     });
 
@@ -118,8 +118,8 @@ export const login = async (req, res) => {
     // Set cookie
     res.cookie('token', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      secure: 'true', // Always secure for production
+      sameSite: 'none',
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
 
