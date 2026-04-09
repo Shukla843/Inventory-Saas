@@ -12,40 +12,54 @@ import stockRoutes from './routes/stockRoutes.js';
 import supplierRoutes from './routes/supplierRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
 
-// Load environment variables
 dotenv.config();
 
-// Initialize Express app
 const app = express();
 
-// Connect to MongoDB
+// Connect DB
 connectDB();
 
 // Middleware
-app.use(express.json()); // Parse JSON bodies
-app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
-app.use(cookieParser()); // Parse cookies
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
-// CORS configuration - Allow frontend to make requests
-const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173')
-  .split(',')
-  .map((origin) => origin.trim())
-  .filter(Boolean);
+/* =========================
+   🔥 CORS FIX (FINAL)
+========================= */
 
+// Allowed origins (local + production)
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://inventory-saas-roan.vercel.app"
+];
+
+// CORS middleware
 app.use(
   cors({
-    origin: (requestOrigin, callback) => {
-      if (!requestOrigin || allowedOrigins.includes(requestOrigin)) {
-        callback(null, true);
+    origin: function (origin, callback) {
+      // allow requests with no origin (mobile apps, postman)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
       } else {
-        callback(new Error(`CORS policy does not allow origin ${requestOrigin}`));
+        return callback(new Error(`CORS not allowed: ${origin}`));
       }
     },
-    credentials: true, // Allow cookies to be sent
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
-// API Routes
+// 🔥 Handle preflight requests
+app.options("*", cors());
+
+/* =========================
+   ROUTES
+========================= */
+
 app.use('/api/auth', authRoutes);
 app.use('/api/warehouse', warehouseRoutes);
 app.use('/api/products', productRoutes);
@@ -53,7 +67,7 @@ app.use('/api/stock', stockRoutes);
 app.use('/api/supplier', supplierRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 
-// Health check route
+// Health check
 app.get('/api/health', (req, res) => {
   res.status(200).json({
     success: true,
@@ -62,7 +76,7 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// 404 handler for undefined routes
+// 404 handler
 app.use((req, res) => {
   res.status(404).json({
     success: false,
@@ -72,7 +86,7 @@ app.use((req, res) => {
 
 // Global error handler
 app.use((err, req, res, next) => {
-  console.error('Global Error:', err.stack);
+  console.error('Global Error:', err.message);
   res.status(err.statusCode || 500).json({
     success: false,
     message: err.message || 'Internal Server Error',
@@ -87,7 +101,7 @@ app.listen(PORT, () => {
   ╔════════════════════════════════════════╗
   ║   🚀 Server Running on Port ${PORT}     ║
   ║   📊 Inventory SaaS Backend Ready     ║
-  ║   🌐 Environment: ${process.env.NODE_ENV || 'development'}          ║
+  ║   🌐 Environment: ${process.env.NODE_ENV || 'development'} ║
   ╚════════════════════════════════════════╝
   `);
 });
